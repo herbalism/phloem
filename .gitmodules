@@ -1,0 +1,6 @@
+[submodule "modules/curl"]
+	path = modules/curl
+	url = git://github.com/cujojs/curl.git
+[submodule "modules/when"]
+	path = modules/when
+	url = git://github.com/cujojs/when.git
