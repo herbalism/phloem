@@ -122,10 +122,30 @@ define (['when'], function(when) {
     };
 
 
+    var iterate = function(next, callback) {
+	return when(next).then(
+	    function(val) {
+		callback(val.value);
+		iterate(val.next, callback);
+	    }
+	)
+    }
+
+    var filter = function(next, condition) {
+	var passed = stream();
+	iterate(next, function(val) {
+	    var match = condition.exec(val)
+	    
+	    match && passed.push(match.length > 1 ? match.slice(1) : match[0])
+	});
+	return passed;
+    }
+
     return {
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
-	queue: queue
+	queue: queue,
+	filter: filter
     }
 })

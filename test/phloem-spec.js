@@ -172,4 +172,43 @@ define(['phloem', 'when'], function(phloem, when) {
 	    }
 	}
     })
+
+    buster.testCase("filter", {
+	"lets through strings matching regex" : function() {
+	    var stream = phloem.stream();
+	    var filtered = phloem.filter(stream.read.next(), /a+/);
+
+	    var promise = when(filtered.read.next())
+	    stream.push("aaaa");
+
+	    return promise.then(function(val) {
+		assert.match(val, {value: "aaaa"});
+	    });
+
+	},
+	"does not let through strings not matching regex" : function() {
+	    var stream = phloem.stream();
+	    var filtered = phloem.filter(stream.read.next(), /a+/);
+
+	    var promise = when(filtered.read.next())
+	    stream.push("bbbb");
+	    stream.push("aaaa");
+
+	    return promise.then(function(val) {
+		assert.match(val, {value: "aaaa"});
+	    })
+	},
+	"lets matches groupmatches as arrays" : function() {
+	    var stream = phloem.stream();
+	    var filtered = phloem.filter(stream.read.next(), /(a+)(b+)/);
+
+	    var promise = when(filtered.read.next())
+	    stream.push("aaaabb");
+
+	    return promise.then(function(val) {
+		assert.match(val, {value: ["aaaa", "bb"]});
+	    });
+
+	}
+    })
 })
