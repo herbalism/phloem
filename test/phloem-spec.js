@@ -198,7 +198,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(val, {value: "aaaa"});
 	    })
 	},
-	"lets matches groupmatches as arrays" : function() {
+	"lets groupmatches through as arrays" : function() {
 	    var stream = phloem.stream();
 	    var filtered = phloem.filter(stream.read.next(), /(a+)(b+)/);
 
@@ -209,6 +209,22 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(val, {value: ["aaaa", "bb"]});
 	    });
 
+	},
+	"function that returns falsey does not match" : function() {
+	    var stream = phloem.stream();
+	    var filtered = phloem.filter(stream.read.next(), function(val){if(val === "abc"){return "hepp"}});
+
+	    var promise = when(filtered.read.next())
+	    stream.push("abcd");
+	    stream.push("abc");
+
+	    return promise.then(function(val) {
+		assert.match(val, {value: "hepp"});
+	    });
+
 	}
+
+
+	
     })
 })

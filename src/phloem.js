@@ -133,10 +133,17 @@ define (['when'], function(when) {
 
     var filter = function(next, condition) {
 	var passed = stream();
+	var doMatch = condition;
+	if((typeof condition) != "function") {
+	    doMatch = function(val) {
+		var match = condition.exec(val)
+		return match && (match.length > 1 ? match.slice(1) : match[0])
+	    }
+	}
+
 	iterate(next, function(val) {
-	    var match = condition.exec(val)
-	    
-	    match && passed.push(match.length > 1 ? match.slice(1) : match[0])
+	    var match = doMatch(val)
+	    match && passed.push(match)
 	});
 	return passed;
     }
