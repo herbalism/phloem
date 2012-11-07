@@ -1,4 +1,9 @@
 define (['when'], function(when) {
+    var EOF = {
+    }
+    EOF.next = when(EOF);
+
+    
     var optional = function (val) {
 	var value = value;
 	var absent = when.defer();
@@ -87,6 +92,9 @@ define (['when'], function(when) {
 		nextValue = when.defer();
 		return old.resolve({value:value, next:nextValue.promise});
 	    },
+	    close: function() {
+		nextValue.resolve(EOF);
+	    },
 	    read: {
 		next: function(){
 		    return nextValue.promise
@@ -145,7 +153,7 @@ define (['when'], function(when) {
 	    var match = doMatch(val)
 	    match && passed.push(match)
 	});
-	return passed;
+	return {read: passed.read};
     }
 
     return {
@@ -153,6 +161,8 @@ define (['when'], function(when) {
 	whenever: whenever,
 	stream: stream,
 	queue: queue,
-	filter: filter
+	filter: filter,
+	iterate: iterate,
+	EOF: EOF
     }
 })

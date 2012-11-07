@@ -170,7 +170,24 @@ define(['phloem', 'when'], function(phloem, when) {
 			assert.match(entry.value, ['new value', '2. new value', '3. new value'])
 		    })
 	    }
+	},
+	"stream sends EOF on close" : function() {
+	    var stream = phloem.stream();
+	    var next = stream.read.next();
+	    stream.close();
+
+	    return when(next).then(function(value) {
+		assert.same(value, phloem.EOF);
+	    })
+	},
+	"always returns EOF after close" : function() {
+	    var stream = phloem.stream();
+	    stream.close();
+	    return when(stream.read.next()).then(function(value) {
+		assert.same(value, phloem.EOF);
+	    })
 	}
+
     })
 
     buster.testCase("filter", {
@@ -223,8 +240,5 @@ define(['phloem', 'when'], function(phloem, when) {
 	    });
 
 	}
-
-
-	
     })
 })
