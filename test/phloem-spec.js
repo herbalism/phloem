@@ -255,5 +255,62 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(vals, [{value:'abc'}, {value:'ddd'}]);
 	    });
 	}
+    }),
+
+    buster.testCase("eitherStream", {
+	"left when left stream writes": function(){
+	    var left = phloem.stream();
+	    var right = phloem.stream();
+	    var eitherStream = phloem.eitherStream(left.read.next(), right.read.next());
+	    
+
+	    promise =  when(eitherStream.read.left())
+	    
+	    left.push("left");
+
+	    return promise.then(function(stream) {
+		assert.match(stream, {value: "left"});
+	    })
+	},
+	"right when right stream writes": function(){
+	    var left = phloem.stream();
+	    var right = phloem.stream();
+	    var eitherStream = phloem.eitherStream(left.read.next(), right.read.next());
+	    
+
+	    promise =  when(eitherStream.read.right())
+	    
+	    right.push("right");
+
+	    return promise.then(function(stream) {
+		assert.match(stream, {value: "right"});
+	    })
+	},
+	"closes left when switching to right" : function() {
+	    var left = phloem.stream();
+	    var right = phloem.stream();
+	    var eitherStream = phloem.eitherStream(left.read.next(), right.read.next());
+
+	    var eitherLeft = eitherStream.read.left();
+	    var eitherRight = eitherStream.read.right();
+	    promise = when(eitherLeft)
+		.then(function(val) {
+		    assert.match(val, {value: "left value"});
+		    right.push("switched to right");
+		    return val.next;
+		})
+		.then(function(val) {
+		    assert.same(val, phloem.EOF);
+		    return eitherRight
+		})
+		.then(function(val) {
+		    assert.match(val, {value: "switched to right"});
+		})
+		    
+	    left.push("left value");
+	    return promise;
+	}
     })
+
 })
+

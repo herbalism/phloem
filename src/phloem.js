@@ -167,6 +167,39 @@ define (['when'], function(when) {
 	};
     }
 
+    var eitherStream = function(left, right) {
+	var leftIn = left;
+	var rightIn = right;
+	var leftOut = stream();
+	var rightOut = stream();
+	var currentStream;
+	var pushTo = function(writeTo, newFrom) {
+	    return function (val) {
+		if(currentStream !== writeTo) {
+		    if(currentStream) {
+			console.log("close current stream", currentStream);
+			currentStream.close();
+		    }
+
+		    newFrom();
+		    currentStream = writeTo;
+		}
+		writeTo.push(val)
+	    }
+	}
+
+	iterate(leftIn, pushTo(leftOut, function() {rightOut = stream()}));
+	iterate(rightIn, pushTo(rightOut, function() {leftOut = stream()}));
+	
+
+	return {
+	    read: {
+		left: function() {return leftOut.read.next()},
+		right: function() {return rightOut.read.next()}
+	    }
+	}
+    }
+
     return {
 	optional: optional,
 	whenever: whenever,
@@ -174,6 +207,7 @@ define (['when'], function(when) {
 	queue: queue,
 	filter: filter,
 	iterate: iterate,
+	eitherStream: eitherStream,
 	EOF: EOF
     }
 })
