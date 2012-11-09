@@ -1,58 +1,67 @@
 define (['when'], function(when) {
     var EOF = {
+	type:"EOF"
     }
     EOF.next = when(EOF);
 
     
-    var optional = function (val) {
-	var value = value;
-	var absent = when.defer();
-	var present = when.defer();
+    var either = function (val) {
+	var value = val;
+	var leftVal = when.defer();
+	var rightVal = when.defer();
 	var result;
 
-	var set = function(newValue) {
+	var left = function(newValue) {
 	    if(newValue) {
 		value = newValue;
-		absent = when.defer();
-		present.resolve(value);
+		rightVal = when.defer();
+		leftVal.resolve(value);
 	    }
 	    return newValue;
 	}
 
-	var clear = function(event) {
+	var right = function(event) {
 	    value = undefined;
-	    present = when.defer();
-	    absent.resolve(event);
+	    leftVal = when.defer();
+	    rightVal.resolve(event);
 	    return event;
 	}
 
 
 	result = {
 	    read: {
-		absent: function() {return absent.promise},
-		present: function() {return present.promise}
+		left: function() {return leftVal.promise},
+		right: function() {return rightVal.promise}
 	    },
-	    set:set,
-	    clear:clear
+	    left:left,
+	    right:right
 	}
 	
 	if(val) {
-	    return set(val);
+	    return left(val);
 	}
 
 	return result;
+    }
 
+    var optional = function() {
+	var result = either();
+	result.set = result.left;
+	result.clear = result.right;
+	result.read.present = result.read.left;
+	result.read.absent = result.read.right;
+	return result;
     }
 
     var whenever = function(dependency) {
 	var result = optional();
-	var present;
-	var absentHandler, presentHandler;
-	var getAbsent = function () {
-	    return absentHandler;
+	var left;
+	var rightHandler, leftHandler;
+	var getRight = function () {
+	    return rightHandler;
 	}
-	var getPresent = function() {
-	    return presentHandler;
+	var getLeft = function() {
+	    return leftHandler;
 	}
 
 	var swap = function(state, handler, action, other, otherHandler) {
@@ -65,21 +74,21 @@ define (['when'], function(when) {
 	    return result.read;
 	}
 
-	var absent = function(handler) {
-	    absentHandler = handler;
-	    return swap(dependency.absent, handler, result.clear, present, getPresent)
+	var right = function(handler) {
+	    rightHandler = handler;
+	    return swap(dependency.right, handler, result.right, left, getLeft)
 	}
 
-	result.read.otherwise = absent;
+	result.read.otherwise = right;
 
-	present = function(handler) {
-	    presentHandler = handler;
-	    return swap(dependency.present, handler, result.set, absent, getAbsent)
+	left = function(handler) {
+	    leftHandler = handler;
+	    return swap(dependency.left, handler, result.left, right, getRight)
 	}
 
 	return  {
-	    then: present,
-	    otherwise: absent
+	    then: left,
+	    otherwise: right
   	}
     } 
 
@@ -177,7 +186,6 @@ define (['when'], function(when) {
 	    return function (val) {
 		if(currentStream !== writeTo) {
 		    if(currentStream) {
-			console.log("close current stream", currentStream);
 			currentStream.close();
 		    }
 
