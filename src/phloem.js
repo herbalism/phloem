@@ -141,6 +141,7 @@ define (['when'], function(when) {
 
     var filter = function(next, condition) {
 	var passed = stream();
+	var rejected = stream();
 	var doMatch = condition;
 	if((typeof condition) != "function") {
 	    doMatch = function(val) {
@@ -151,9 +152,19 @@ define (['when'], function(when) {
 
 	iterate(next, function(val) {
 	    var match = doMatch(val)
-	    match && passed.push(match)
+	    if(match) {
+		passed.push(match) 
+	    }
+	    else {
+		rejected.push(val);
+	    }
 	});
-	return {read: passed.read};
+	return {
+	    read: {
+		next: passed.read.next,
+		unmatched: rejected.read.next
+	    }
+	};
     }
 
     return {

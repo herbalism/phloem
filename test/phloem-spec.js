@@ -239,6 +239,21 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(val, {value: "hepp"});
 	    });
 
+	},
+	"unmatched item can be read" : function() {
+	    var stream = phloem.stream();
+	    var filter = phloem.filter(stream.read.next(), /abc/);
+
+	    var matched = filter.read.next();
+	    var unmatched = filter.read.unmatched();
+	    var promise = when.all([matched, unmatched]);
+
+	    stream.push("abc");
+	    stream.push("ddd");
+
+	    return promise.then(function(vals) {
+		assert.match(vals, [{value:'abc'}, {value:'ddd'}]);
+	    });
 	}
     })
 })
