@@ -42,8 +42,8 @@ define (['when'], function(when) {
 	return result;
     }
 
-    var optional = function() {
-	var result = either();
+    var optional = function(adapted) {
+	var result = adapted || either();
 	result.set = result.left;
 	result.clear = result.right;
 	result.read.present = result.read.left;
@@ -205,6 +205,7 @@ define (['when'], function(when) {
     }
 
     return {
+	either: either,
 	optional: optional,
 	whenever: whenever,
 	stream: stream,

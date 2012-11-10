@@ -2,6 +2,14 @@ define(['phloem', 'when'], function(phloem, when) {
     var assert = buster.assert;
     buster.testCase("phloem", {
 	"optional": {
+	    'optional can adapt an either': function() {
+		var either = phloem.either();
+		var optional = phloem.optional(either);
+		assert.same(either.left, optional.set);
+		assert.same(either.right, optional.clear);
+		assert.same(either.read.left, optional.read.present);
+		assert.same(either.read.right, optional.read.absent);
+	    },
 	    'absent value can be resolved once' : function() {
 		var optional = phloem.optional();
 		optional.clear("event");
