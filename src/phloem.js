@@ -52,7 +52,7 @@ define (['when'], function(when) {
     }
 
     var whenever = function(dependency) {
-	var result = optional();
+	var result = either();
 	var left;
 	var rightHandler, leftHandler;
 	var getRight = function () {

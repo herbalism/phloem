@@ -1,115 +1,114 @@
 define(['phloem', 'when'], function(phloem, when) {
     var assert = buster.assert;
-    buster.testCase("phloem", {
-	"optional": {
-	    'optional can adapt an either': function() {
-		var either = phloem.either();
-		var optional = phloem.optional(either);
-		assert.same(either.left, optional.set);
-		assert.same(either.right, optional.clear);
-		assert.same(either.read.left, optional.read.present);
-		assert.same(either.read.right, optional.read.absent);
-	    },
-	    'absent value can be resolved once' : function() {
-		var optional = phloem.optional();
-		optional.clear("event");
-		 return when(optional.read.absent()).then(function(value) {
-		     assert.equals(value, "event");
-		 });
-	    },
-	    'present can be resolved once' : function() {
-		var optional = phloem.optional();
-		optional.set("value");
-		return when(optional.read.present()).then(function(value) {
+    buster.testCase("either",{
+	'right value can be resolved once' : function() {
+	    var either = phloem.either();
+	    either.right("event");
+	    return when(either.read.right()).then(function(value) {
+		assert.equals(value, "event");
+	    });
+	},
+	'left can be resolved once' : function() {
+	    var either = phloem.either();
+	    either.left("value");
+	    return when(either.read.left()).then(function(value) {
+		assert.equals(value, "value");
+	    });
+	},
+	'left can be resolved after right' : function() {
+	    var either = phloem.either();
+	    return when("value")
+		.then(either.right)
+		.then(either.read.right)
+		.then(either.left)
+		.then(either.read.left)
+		.then(either.right)
+		.then(either.read.right)
+		.then(function(value){
 		    assert.equals(value, "value");
 		});
-	    },
-	    'present can be resolved after absent' : function() {
-		var optional = phloem.optional();
-		return when("value")
-		    .then(optional.clear)
-		    .then(optional.read.absent)
-		    .then(optional.set)
-		    .then(optional.read.present)
-		    .then(optional.clear)
-		    .then(optional.read.absent)
-		    .then(function(value){
-			assert.equals(value, "value");
-		    });
-
-	    },
-	    'absent can be resolved after present' : function() {
-		var optional = phloem.optional();
-		return when("value")
-		    .then(optional.set)
-		    .then(optional.read.present)
-		    .then(optional.clear)
-		    .then(optional.read.absent)
-		    .then(optional.set)
-		    .then(optional.read.present)
-		    .then(function(value){
-			assert.equals(value, "value");
-		    });
-
-	    }
-
-
 
 	},
-	"whenever" : {
-	    "chain present with whenever" : function() {
-		var optional = phloem.optional();
-		var dependent = phloem.whenever(optional.read).then(function(value) {
-		    return [value, "from dependent"]
-		})
+	'right can be resolved after left' : function() {
+	    var either = phloem.either();
+	    return when("value")
+		.then(either.left)
+		.then(either.read.left)
+		.then(either.right)
+		.then(either.read.right)
+		.then(either.left)
+		.then(either.read.left)
+		.then(function(value){
+		    assert.equals(value, "value");
+		});
 
-		return when("from optional")
-		    .then(optional.set)
-		    .then(dependent.present)
-		    .then(
-			function(value) {
-			    assert.equals(value, ["from optional", "from dependent"]);
-			}
-		    );
-	    },
-	    "chain absent with whenever" : function() {
-		var optional = phloem.optional();
-		var dependent = phloem.whenever(optional.read).otherwise(function(value) {
-		    return [value, "from dependent"]
-		})
-
-		return when("from optional")
-		    .then(optional.clear)
-		    .then(dependent.absent)
-		    .then(
-			function(value) {
-			    assert.equals(value, ["from optional", "from dependent"]);
-			}
-		    );
-	    },
-	    "chain can oscillate between absent and present" : function() {
-		var optional = phloem.optional();
-		var dependent = phloem.whenever(optional.read)
-		    .then(function(present){
-			return "present: " + present;
-		    })
-		    .otherwise(function(absent){
-			return "absent: " + absent;
-		    });
-		return when("from optional")
-		    .then(optional.set)
-		    .then(dependent.present)
-		    .then(optional.clear)
-		    .then(dependent.absent)
-		    .then(optional.set)
-		    .then(dependent.present)
-		    .then(function(result) {
-			assert.equals("present: absent: present: from optional", result);
-		    })
-		   
-	    }
 	}
     })
+
+    buster.testCase("optional", {
+	'can adapt an either': function() {
+	    var either = phloem.either();
+	    var optional = phloem.optional(either);
+	    assert.same(either.left, optional.set);
+	    assert.same(either.right, optional.clear);
+	    assert.same(either.read.left, optional.read.present);
+	    assert.same(either.read.right, optional.read.absent);
+	}
+    })
+
+    buster.testCase("whenever", {
+	"chain left with whenever" : function() {
+	    var either = phloem.either();
+	    var dependent = phloem.whenever(either.read).then(function(value) {
+		return [value, "from dependent"]
+	    })
+
+	    return when("from either")
+		.then(either.left)
+		.then(dependent.left)
+		.then(
+		    function(value) {
+			assert.equals(value, ["from either", "from dependent"]);
+		    }
+		);
+	},
+	"chain right with whenever" : function() {
+	    var either = phloem.either();
+	    var dependent = phloem.whenever(either.read).otherwise(function(value) {
+		return [value, "from dependent"]
+	    })
+
+	    return when("from either")
+		.then(either.right)
+		.then(dependent.right)
+		.then(
+		    function(value) {
+			assert.equals(value, ["from either", "from dependent"]);
+		    }
+		);
+	},
+	"chain can oscillate between right and left" : function() {
+	    var either = phloem.either();
+	    var dependent = phloem.whenever(either.read)
+		.then(function(left){
+		    return "left: " + left;
+		})
+		.otherwise(function(right){
+		    return "right: " + right;
+		});
+	    return when("from either")
+		.then(either.left)
+		.then(dependent.left)
+		.then(either.right)
+		.then(dependent.right)
+		.then(either.left)
+		.then(dependent.left)
+		.then(function(result) {
+		    assert.equals("left: right: left: from either", result);
+		})
+	}
+    })
+    
     
     buster.testCase("stream", {
 	"- when push -": {
@@ -314,7 +313,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		.then(function(val) {
 		    assert.match(val, {value: "switched to right"});
 		})
-		    
+	    
 	    left.push("left value");
 	    return promise;
 	}
