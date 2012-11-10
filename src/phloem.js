@@ -12,19 +12,17 @@ define (['when'], function(when) {
 	var result;
 
 	var left = function(newValue) {
-	    if(newValue) {
-		value = newValue;
-		rightVal = when.defer();
-		leftVal.resolve(value);
-	    }
+	    value = newValue;
+	    rightVal = when.defer();
+	    leftVal.resolve(value);
 	    return newValue;
 	}
 
-	var right = function(event) {
-	    value = undefined;
+	var right = function(newValue) {
+	    value = newValue;
 	    leftVal = when.defer();
-	    rightVal.resolve(event);
-	    return event;
+	    rightVal.resolve(value);
+	    return value;
 	}
 
 
@@ -179,32 +177,30 @@ define (['when'], function(when) {
     var eitherStream = function(left, right) {
 	var leftIn = left;
 	var rightIn = right;
-	var leftOut = stream();
-	var rightOut = stream();
-	var currentStream;
-	var pushTo = function(writeTo, newFrom) {
-	    return function (val) {
-		if(currentStream !== writeTo) {
-		    if(currentStream) {
-			currentStream.close();
-		    }
 
-		    newFrom();
-		    currentStream = writeTo;
+	var currentStream = stream();
+	var out = either();
+	out.left(currentStream.read.next());
+	var currentSource = left;
+
+	var pushTo = function(source, target) {
+	    return function (val) {
+		if(currentSource !== source) {
+		    currentStream.close()
+		    currentSource = source;
+		    currentStream = stream();
+		    target(currentStream.read.next());
 		}
-		writeTo.push(val)
+		currentStream.push(val)
 	    }
 	}
 
-	iterate(leftIn, pushTo(leftOut, function() {rightOut = stream()}));
-	iterate(rightIn, pushTo(rightOut, function() {leftOut = stream()}));
+	iterate(leftIn, pushTo(leftIn, out.left));
+	iterate(rightIn, pushTo(rightIn, out.right));
 	
 
 	return {
-	    read: {
-		left: function() {return leftOut.read.next()},
-		right: function() {return rightOut.read.next()}
-	    }
+	    read: out.read
 	}
     }
 

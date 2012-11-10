@@ -277,7 +277,6 @@ define(['phloem', 'when'], function(phloem, when) {
 	    var right = phloem.stream();
 	    var eitherStream = phloem.eitherStream(left.read.next(), right.read.next());
 	    
-
 	    promise =  when(eitherStream.read.right())
 	    
 	    right.push("right");
@@ -293,6 +292,7 @@ define(['phloem', 'when'], function(phloem, when) {
 
 	    var eitherLeft = eitherStream.read.left();
 	    var eitherRight = eitherStream.read.right();
+
 	    promise = when(eitherLeft)
 		.then(function(val) {
 		    assert.match(val, {value: "left value"});
@@ -301,7 +301,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		})
 		.then(function(val) {
 		    assert.same(val, phloem.EOF);
-		    return eitherRight
+		    return eitherStream.read.right();
 		})
 		.then(function(val) {
 		    assert.match(val, {value: "switched to right"});
