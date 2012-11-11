@@ -140,6 +140,7 @@ define(['phloem', 'when'], function(phloem, when) {
 	    },
 	    "the last pushed value is read on next" : function() {
 		var stream = phloem.stream();
+		stream.push("first value");
 		stream.push("last value");
 
 		return when(stream.read.next())
@@ -289,7 +290,10 @@ define(['phloem', 'when'], function(phloem, when) {
 	    left.push("left");
 
 	    return promise.then(function(stream) {
-		assert.match(stream, {value: "left"});
+		return stream();
+	    })
+	    .then(function(val) {
+		assert.match(val, {value: "left"});
 	    })
 	},
 	"right when right stream writes": function(){
@@ -302,7 +306,9 @@ define(['phloem', 'when'], function(phloem, when) {
 	    right.push("right");
 
 	    return promise.then(function(stream) {
-		assert.match(stream, {value: "right"});
+		return stream();
+	    }).then(function(next){
+		assert.match(next, {value: "right"});
 	    })
 	},
 	"closes left when switching to right" : function() {
@@ -314,6 +320,9 @@ define(['phloem', 'when'], function(phloem, when) {
 	    var eitherRight = eitherStream.read.right();
 
 	    promise = when(eitherLeft)
+		.then(function(stream) {
+		    return stream();
+		})
 		.then(function(val) {
 		    assert.match(val, {value: "left value"});
 		    right.push("switched to right");
@@ -323,9 +332,12 @@ define(['phloem', 'when'], function(phloem, when) {
 		    assert.same(val, phloem.EOF);
 		    return eitherStream.read.right();
 		})
+		.then(function(stream) {
+		    return stream();
+		})
 		.then(function(val) {
 		    assert.match(val, {value: "switched to right"});
-		})
+		});
 	    
 	    left.push("left value");
 	    return promise;

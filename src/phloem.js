@@ -189,7 +189,7 @@ define (['when'], function(when) {
 
 	var currentStream = stream();
 	var out = either();
-	out.left(currentStream.read.next());
+	out.left(currentStream.read.next);
 	var currentSource = left;
 
 	var pushTo = function(source, target) {
@@ -198,7 +198,7 @@ define (['when'], function(when) {
 		    currentStream.close()
 		    currentSource = source;
 		    currentStream = stream();
-		    target(currentStream.read.next());
+		    target(currentStream.read.next);
 		}
 		currentStream.push(val)
 	    }
