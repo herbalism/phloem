@@ -92,19 +92,25 @@ define (['when'], function(when) {
 
 
     var stream = function() {
-	var nextValue = when.defer();
+	var deferredNext = when.defer();
+	var nextValue = deferredNext.promise;
+	var push = function(value){
+	    var old = deferredNext;
+	    deferredNext = when.defer();
+	    nextValue = old.promise;
+	    var result = {value:value, next:deferredNext.promise}
+	    return old.resolve(result);
+	}
+
 	return {
-	    push: function(value){
-		var old = nextValue;
-		nextValue = when.defer();
-		return old.resolve({value:value, next:nextValue.promise});
-	    },
+	    push: push,
 	    close: function() {
-		nextValue.resolve(EOF);
+		nextValue = EOF;
+		deferredNext.resolve(EOF);
 	    },
 	    read: {
 		next: function(){
-		    return nextValue.promise
+		    return nextValue
 		}
 	    }
 	}
@@ -117,12 +123,15 @@ define (['when'], function(when) {
 	var aggregate = function(snapshot) {
 	    return function(element) {
 		var acc = snapshot.concat([element.value]);
-		if(element.next === input.read.next()) {
-		    return {value: acc, next: when(element.next).then(aggregate(acc))}
-		}
-		else {
-		    return when(element.next).then(aggregate(acc))
-		}
+		return when(input.read.next()).then(
+		    function(nextElement) {
+			if(element.next === nextElement.next) {
+			    return {value: acc, next: when(element.next).then(aggregate(acc))}
+			}
+			else {
+			    return when(element.next).then(aggregate(acc))
+			}
+		    })
 	    }
 	}
 

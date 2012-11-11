@@ -137,10 +137,18 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(function(value) {
 			assert.equals(value.value, "value second")
 		    });
+	    },
+	    "the last pushed value is read on next" : function() {
+		var stream = phloem.stream();
+		stream.push("last value");
+
+		return when(stream.read.next())
+		    .then(function(val) {
+			assert.match(val, {value: "last value"})
+		    })
 	    }
 	}
     });
-
 
     buster.testCase("queue", {
 	"- when push -": {
@@ -148,8 +156,13 @@ define(['phloem', 'when'], function(phloem, when) {
 		var queue = phloem.queue();
 		var next = queue.next();
 		return when("new value")
-		    .then(queue.push)
-		    .then(function(){return next})
+		    .then(function(val) {
+			var pushed = queue.push(val)
+			return when(queue.next());
+		    })
+		    .then(function(val){
+			return queue.next();
+		    })
 		    .then(function(entry) {
 			assert.match(entry.value, ['new value'])
 		    })
