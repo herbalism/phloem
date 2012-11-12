@@ -45,6 +45,24 @@ define(['phloem', 'when'], function(phloem, when) {
 	}
     })
 
+    buster.testCase("not",{
+	'when right value left value is resolved' : function() {
+	    var either = phloem.not(phloem.either());
+	    either.right("event");
+	    return when(either.read.left()).then(function(value) {
+		assert.equals(value, "event");
+	    });
+	},
+	'when left value right value is resolved' : function() {
+	    var either = phloem.not(phloem.either());
+	    either.left("value");
+	    return when(either.read.right()).then(function(value) {
+		assert.equals(value, "value");
+	    });
+	}
+    })
+
+
     buster.testCase("optional", {
 	'can adapt an either': function() {
 	    var either = phloem.either();

@@ -42,6 +42,23 @@ define (['when'], function(when) {
 	return result;
     }
 
+    var not = function(either) {
+	function swap(val) {
+	    var left = val.left;
+	    var right = val.right;
+	    return {
+		left: right,
+		right: left
+	    }
+	}
+
+	var result = swap(either);
+	if (either.read) {
+	    result = swap(result)
+	    result.read = swap(either.read);
+	}
+	return result;
+    }
     var optional = function(adapted) {
 	var result = adapted || either();
 	result.set = result.left;
@@ -215,6 +232,7 @@ define (['when'], function(when) {
 
     return {
 	either: either,
+	not: not,
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
