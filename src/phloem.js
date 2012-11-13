@@ -69,9 +69,12 @@ define (['when'], function(when) {
     }
 
     var whenever = function(dependency) {
+	var NOOP = function(value) {return value};
 	var result = either();
-	var left;
+
 	var rightHandler, leftHandler;
+	rightHandler = leftHandler = NOOP;
+
 	var getRight = function () {
 	    return rightHandler;
 	}
@@ -89,13 +92,13 @@ define (['when'], function(when) {
 	    return result.read;
 	}
 
+	var left;
 	var right = function(handler) {
 	    rightHandler = handler;
 	    return swap(dependency.right, handler, result.right, left, getLeft)
 	}
 
 	result.read.otherwise = right;
-
 	left = function(handler) {
 	    leftHandler = handler;
 	    return swap(dependency.left, handler, result.left, right, getRight)
