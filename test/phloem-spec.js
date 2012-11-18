@@ -165,7 +165,24 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(function(val) {
 			assert.match(val, {value: "last value"})
 		    })
+	    },
+	    "stream sends EOF on close" : function() {
+		var stream = phloem.stream();
+		var next = stream.read.next();
+		stream.close();
+
+		return when(next).then(function(value) {
+		    assert.same(value, phloem.EOF);
+		})
+	    },
+	    "always returns EOF after close" : function() {
+		var stream = phloem.stream();
+		stream.close();
+		return when(stream.read.next()).then(function(value) {
+		    assert.same(value, phloem.EOF);
+		})
 	    }
+
 	}
     });
 
@@ -186,46 +203,70 @@ define(['phloem', 'when'], function(phloem, when) {
 			assert.match(entry.value, ['new value'])
 		    })
 	    },
-	    "a several values in a row are resolved pre listen" : function() {
+	    "several values in a row are resolved pre listen" : function() {
 		var queue = phloem.queue();
 		return when("new value")
 		    .then(queue.push)
-		    .then(function(val){return queue.push("2. "+val.value)})
-		    .then(function(val){return queue.push("3. "+val.value)})
+		    .then(function(val){return queue.push("2. new value")})
+		    .then(function(val){return queue.push("3. new value")})
 		    .then(queue.next)
-		    .then(function(entry) {
-			assert.match(entry.value, ['new value', '2. new value', '3. 2. new value'])
+		    .then(phloem.value)
+		    .then(function(value) {
+			assert.match(value, ['new value', '2. new value', '3. new value'])
 		    })
 	    },
 	    "a several values in a row are resolved post listen" : function() {
 		var queue = phloem.queue();
 		return when("new value")
 		    .then(queue.push)
+		    .then(queue.next)
 		    .then(function(val){queue.push("2. "+val.value)
 					return val.next})
 		    .then(function(val){queue.push("3. "+val.value[0])
 					return val.next})
-		    .then(function(entry) {
-			assert.match(entry.value, ['new value', '2. new value', '3. new value'])
+		    .then(queue.next)
+		    .then(phloem.value)
+		    .then(function(value) {
+			assert.match(value, ['new value', '2. new value', '3. new value'])
 		    })
+	    },
+	    "console last added is available under add" : function() {
+		var queue = phloem.queue();
+		return when("new value")
+		    .then(queue.push)
+		    .then(queue.next)
+		    .then(phloem.value)
+		.then(function(val) {
+		    assert.equals(val.added, "new value")
+		})
+	    },
+	    "console drop removes element" : function() {
+		var queue = phloem.queue();
+		return when("new value")
+		    .then(queue.push)
+		    .then(function() {return queue.push("other value")})
+		    .then(function() {return queue.drop("new value")})
+		    .then(queue.next)
+		    .then(phloem.value)
+		    
+		.then(function(val) {
+		    assert.match(val, ["other value"]);
+		})
+	    },
+	    "console dropped elements are reported" : function() {
+		var queue = phloem.queue();
+		return when("new value")
+		    .then(queue.push)
+		    .then(function(){return queue.drop("new value")})
+		    .then(queue.next)
+		    .then(phloem.value)
+		    
+		.then(function(val) {
+		    assert.equals(val.dropped, "new value");
+		})
 	    }
-	},
-	"stream sends EOF on close" : function() {
-	    var stream = phloem.stream();
-	    var next = stream.read.next();
-	    stream.close();
 
-	    return when(next).then(function(value) {
-		assert.same(value, phloem.EOF);
-	    })
 	},
-	"always returns EOF after close" : function() {
-	    var stream = phloem.stream();
-	    stream.close();
-	    return when(stream.read.next()).then(function(value) {
-		assert.same(value, phloem.EOF);
-	    })
-	}
 
     })
 

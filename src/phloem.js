@@ -140,9 +140,36 @@ define (['when'], function(when) {
 	var input = stream();
 	var rootQueue = input.read.next()
 	var snapshot = [];
+
+	var add = function (snap, element) {
+	    var acc = snap.concat([element])
+	    acc.added = element;
+	    return acc;
+	}
+
+	var drop = function (snap, element) {
+	    var index = snap.indexOf(element);
+	    if (index < 0) {
+		return snap;
+	    }
+
+	    var acc = snap.slice(0, index).concat(snap.slice(index+1));
+	    
+	    acc.dropped = element;
+	    return acc;
+	}
+
 	var aggregate = function(snapshot) {
 	    return function(element) {
-		var acc = snapshot.concat([element.value]);
+		var acc = snapshot;
+
+		if(element.value.add) {
+		    acc = add(snapshot, element.value.add);
+		}
+		else if (element.value.drop) {
+		    acc = drop(snapshot, element.value.drop);
+		}
+		
 		return when(input.read.next()).then(
 		    function(nextElement) {
 			if(element.next === nextElement.next) {
@@ -152,15 +179,19 @@ define (['when'], function(when) {
 			    return when(element.next).then(aggregate(acc))
 			}
 		    })
+
 	    }
 	}
-
+	
 	return {
 	    next: function(){
 		return when(rootQueue).then(aggregate(snapshot))
 	    },
 	    push: function(value) {
-		return when(input.push(value)).then(aggregate(snapshot));
+		return input.push({add: value});
+	    },
+	    drop: function(value) {
+		return input.push({drop: value});
 	    }
 	}
     };
@@ -243,6 +274,8 @@ define (['when'], function(when) {
 	filter: filter,
 	iterate: iterate,
 	eitherStream: eitherStream,
-	EOF: EOF
+	EOF: EOF,
+	next: function(val){return val.next},
+	value: function(val) {return val.value}
     }
 })
