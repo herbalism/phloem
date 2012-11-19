@@ -136,7 +136,8 @@ define (['when'], function(when) {
 	}
     }
 
-    var queue = function() {
+    var queue = function(getId) {
+	var getId = getId || function(val) {return val}
 	var input = stream();
 	var rootQueue = input.read.next()
 	var snapshot = [];
@@ -148,14 +149,12 @@ define (['when'], function(when) {
 	}
 
 	var drop = function (snap, element) {
-	    var index = snap.indexOf(element);
-	    if (index < 0) {
-		return snap;
-	    }
+	    var elemId = getId(element);
+	    var acc = snap.filter(function(val){
+		return elemId !== getId(val);
+	    })
 
-	    var acc = snap.slice(0, index).concat(snap.slice(index+1));
-	    
-	    acc.dropped = element;
+	    acc.dropped = snap.filter(function(val){return elemId === getId(val)});
 	    return acc;
 	}
 

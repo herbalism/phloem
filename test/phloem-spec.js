@@ -262,11 +262,23 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(phloem.value)
 		    
 		.then(function(val) {
-		    assert.equals(val.dropped, "new value");
+		    assert.match(val.dropped, ["new value"]);
 		})
+	    },
+	    "a function for drop-id can be specified" : function() {
+		var queue = phloem.queue(function(val) {return val.name});
+		return when({name: "new-value", value: 123456, attr: {v: "val"}})
+		    .then(queue.push)
+		    .then(function(){return queue.drop({name: "new-value"})})
+		    .then(queue.next)
+		    .then(phloem.value)
+		    .then(function(val) {
+			assert.match(val, []);
+			assert.match(val.dropped, [{name: "new-value", value:123456, attr:{v: "val"}}]);
+		    })
 	    }
 
-	},
+	}
 
     })
 
