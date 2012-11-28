@@ -275,6 +275,7 @@ define (['when'], function(when) {
 	eitherStream: eitherStream,
 	EOF: EOF,
 	next: function(val){return val.next},
-	value: function(val) {return val.value}
+	value: function(val) {return val.value},
+	log: function(val) {console.log(val); return val}
     }
 })
