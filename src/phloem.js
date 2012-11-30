@@ -233,6 +233,14 @@ define (['when'], function(when) {
 	};
     }
 
+    var events = function(output) {
+	var out = output || stream();
+	return {
+	    push: function(value){out.push({added: [value]})},
+	    read: out.read
+	}
+    }
+
     var eitherStream = function(left, right) {
 	var leftIn = left;
 	var rightIn = right;
@@ -269,6 +277,7 @@ define (['when'], function(when) {
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
+	events: events,
 	queue: queue,
 	filter: filter,
 	iterate: iterate,

@@ -415,5 +415,18 @@ define(['phloem', 'when'], function(phloem, when) {
 	}
     })
 
+    buster.testCase("events", {
+	"push single sends added event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {added: ["some value"]});
+		});
+
+	    events.push("some value");
+	    return promise;
+	}
+    });
 })
 
