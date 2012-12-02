@@ -138,23 +138,23 @@ define (['when', 'lodash'], function(when, _) {
 
     var queue = function(getId) {
 	var getId = getId || function(val) {return val}
-	var input = stream();
+	var input = events();
 	var rootQueue = input.read.next()
 	var snapshot = [];
 
-	var add = function (snap, element) {
-	    var acc = snap.concat([element])
-	    acc.added = element;
+	var add = function (snap, elements) {
+	    var acc = snap.concat(elements)
+	    acc.added = elements;
 	    return acc;
 	}
 
-	var drop = function (snap, element) {
-	    var elemId = getId(element);
+	var drop = function (snap, elements) {
+	    var ids = _.map(elements, getId);
 	    var acc = snap.filter(function(val){
-		return elemId !== getId(val);
+		return _.indexOf(ids,  getId(val)) === -1;
 	    })
 
-	    acc.dropped = snap.filter(function(val){return elemId === getId(val)});
+	    acc.dropped = snap.filter(function(val){return _.indexOf(ids, getId(val)) !== -1 });
 	    return acc;
 	}
 
@@ -162,11 +162,11 @@ define (['when', 'lodash'], function(when, _) {
 	    return function(element) {
 		var acc = snapshot;
 
-		if(element.value.add) {
-		    acc = add(snapshot, element.value.add);
+		if(element.value.added) {
+		    acc = add(snapshot, element.value.added);
 		}
-		else if (element.value.drop) {
-		    acc = drop(snapshot, element.value.drop);
+		else if (element.value.dropped) {
+		    acc = drop(snapshot, element.value.dropped);
 		}
 		
 		return when(input.read.next()).then(
@@ -186,12 +186,8 @@ define (['when', 'lodash'], function(when, _) {
 	    next: function(){
 		return when(rootQueue).then(aggregate(snapshot))
 	    },
-	    push: function(value) {
-		return input.push({add: value});
-	    },
-	    drop: function(value) {
-		return input.push({drop: value});
-	    }
+	    push: input.push,
+	    drop: input.drop
 	}
     };
 

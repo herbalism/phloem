@@ -237,7 +237,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(queue.next)
 		    .then(phloem.value)
 		.then(function(val) {
-		    assert.equals(val.added, "new value")
+		    assert.equals(val.added, ["new value"])
 		})
 	    },
 	    "console drop removes element" : function() {
