@@ -1,4 +1,4 @@
-define (['when'], function(when) {
+define (['when', 'lodash'], function(when, _) {
     var EOF = {
 	type:"EOF"
     }
@@ -138,23 +138,23 @@ define (['when'], function(when) {
 
     var queue = function(getId) {
 	var getId = getId || function(val) {return val}
-	var input = stream();
+	var input = events();
 	var rootQueue = input.read.next()
 	var snapshot = [];
 
-	var add = function (snap, element) {
-	    var acc = snap.concat([element])
-	    acc.added = element;
+	var add = function (snap, elements) {
+	    var acc = snap.concat(elements)
+	    acc.added = elements;
 	    return acc;
 	}
 
-	var drop = function (snap, element) {
-	    var elemId = getId(element);
+	var drop = function (snap, elements) {
+	    var ids = _.map(elements, getId);
 	    var acc = snap.filter(function(val){
-		return elemId !== getId(val);
+		return _.indexOf(ids,  getId(val)) === -1;
 	    })
 
-	    acc.dropped = snap.filter(function(val){return elemId === getId(val)});
+	    acc.dropped = snap.filter(function(val){return _.indexOf(ids, getId(val)) !== -1 });
 	    return acc;
 	}
 
@@ -162,11 +162,11 @@ define (['when'], function(when) {
 	    return function(element) {
 		var acc = snapshot;
 
-		if(element.value.add) {
-		    acc = add(snapshot, element.value.add);
+		if(element.value.added) {
+		    acc = add(snapshot, element.value.added);
 		}
-		else if (element.value.drop) {
-		    acc = drop(snapshot, element.value.drop);
+		else if (element.value.dropped) {
+		    acc = drop(snapshot, element.value.dropped);
 		}
 		
 		return when(input.read.next()).then(
@@ -186,12 +186,8 @@ define (['when'], function(when) {
 	    next: function(){
 		return when(rootQueue).then(aggregate(snapshot))
 	    },
-	    push: function(value) {
-		return input.push({add: value});
-	    },
-	    drop: function(value) {
-		return input.push({drop: value});
-	    }
+	    push: input.push,
+	    drop: input.drop
 	}
     };
 
@@ -233,6 +229,16 @@ define (['when'], function(when) {
 	};
     }
 
+    var events = function(output) {
+	var out = output || stream();
+	return {
+	    push: function(value){out.push({added: _.isArray(value) ? value : [value]})},
+	    drop: function(value){out.push({dropped: _.isArray(value) ? value : [value]})},
+	    snap: function(value){out.push({snap: _.isArray(value) ? value : [value]})},
+	    read: out.read
+	}
+    }
+
     var eitherStream = function(left, right) {
 	var leftIn = left;
 	var rightIn = right;
@@ -269,6 +275,7 @@ define (['when'], function(when) {
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
+	events: events,
 	queue: queue,
 	filter: filter,
 	iterate: iterate,

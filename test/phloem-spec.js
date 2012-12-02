@@ -237,7 +237,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(queue.next)
 		    .then(phloem.value)
 		.then(function(val) {
-		    assert.equals(val.added, "new value")
+		    assert.equals(val.added, ["new value"])
 		})
 	    },
 	    "console drop removes element" : function() {
@@ -414,6 +414,65 @@ define(['phloem', 'when'], function(phloem, when) {
 	    return promise;
 	}
     })
+
+    buster.testCase("events", {
+	"push single sends added event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {added: ["some value"]});
+		});
+
+	    events.push("some value");
+	    return promise;
+	},
+	
+	"drop single sends dropped event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {dropped: ["some value"]});
+		});
+	    events.drop("some value");
+	    return promise;
+	},
+	"push many sends added event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {added: ["some value1", "some value2"]});
+		});
+
+	    events.push(["some value1", "some value2"]);
+	    return promise;
+	},
+	
+	"drop single sends dropped event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {dropped: ["some value1", "some value2"]});
+		});
+	    events.drop(["some value1", "some value2"]);
+	    return promise;
+	},
+
+	"snap sends snapshot event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {snap: ["some value1", "some value2"]});
+		});
+	    events.snap(["some value1", "some value2"]);
+	    return promise;
+	}
+
+    });
 
 })
 
