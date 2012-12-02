@@ -238,6 +238,7 @@ define (['when', 'lodash'], function(when, _) {
 	return {
 	    push: function(value){out.push({added: _.isArray(value) ? value : [value]})},
 	    drop: function(value){out.push({dropped: _.isArray(value) ? value : [value]})},
+	    snap: function(value){out.push({snap: _.isArray(value) ? value : [value]})},
 	    read: out.read
 	}
     }

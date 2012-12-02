@@ -459,6 +459,17 @@ define(['phloem', 'when'], function(phloem, when) {
 		});
 	    events.drop(["some value1", "some value2"]);
 	    return promise;
+	},
+
+	"snap sends snapshot event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {snap: ["some value1", "some value2"]});
+		});
+	    events.snap(["some value1", "some value2"]);
+	    return promise;
 	}
 
     });
