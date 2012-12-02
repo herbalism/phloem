@@ -426,7 +426,42 @@ define(['phloem', 'when'], function(phloem, when) {
 
 	    events.push("some value");
 	    return promise;
+	},
+	
+	"drop single sends dropped event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {dropped: ["some value"]});
+		});
+	    events.drop("some value");
+	    return promise;
+	},
+	"push many sends added event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {added: ["some value1", "some value2"]});
+		});
+
+	    events.push(["some value1", "some value2"]);
+	    return promise;
+	},
+	
+	"drop single sends dropped event" : function() {
+	    var events = phloem.events();
+	    promise = when(events.read.next()).
+		then(phloem.value).
+		then(function(value) {
+		    assert.equals(value, {dropped: ["some value1", "some value2"]});
+		});
+	    events.drop(["some value1", "some value2"]);
+	    return promise;
 	}
+
     });
+
 })
 

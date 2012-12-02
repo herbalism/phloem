@@ -1,4 +1,4 @@
-define (['when'], function(when) {
+define (['when', 'lodash'], function(when, _) {
     var EOF = {
 	type:"EOF"
     }
@@ -236,7 +236,8 @@ define (['when'], function(when) {
     var events = function(output) {
 	var out = output || stream();
 	return {
-	    push: function(value){out.push({added: [value]})},
+	    push: function(value){out.push({added: _.isArray(value) ? value : [value]})},
+	    drop: function(value){out.push({dropped: _.isArray(value) ? value : [value]})},
 	    read: out.read
 	}
     }
