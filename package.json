@@ -2,7 +2,7 @@
   "name": "phloem",
   "version": "0.0.0",
   "description": "promise based data structures",
-  "main": "src/phloem.js",
+  "main": "phloem.js",
   "directories": {
     "test": "test"
   },

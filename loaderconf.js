@@ -2,7 +2,7 @@ curl({
     baseUrl: '.',
 
     paths: {
-	'phloem' : 'src/phloem',
+	'phloem' : 'phloem',
     },
     packages: {
         'when' : {
@@ -16,3 +16,4 @@ curl({
     }
 });
 window.require = curl;
+
