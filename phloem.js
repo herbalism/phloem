@@ -4,6 +4,8 @@ define (['when', 'lodash'], function(when, _) {
     }
     EOF.next = when(EOF);
 
+    var cons = function(head, tail) {return {value: head, next:when(tail || EOF)}};
+
     
     var either = function (val) {
 	var value = val;
@@ -118,7 +120,7 @@ define (['when', 'lodash'], function(when, _) {
 	    var old = deferredNext;
 	    deferredNext = when.defer();
 	    nextValue = old.promise;
-	    var result = {value:value, next:deferredNext.promise}
+	    var result = cons(value, deferredNext.promise);
 	    return old.resolve(result);
 	}
 
@@ -172,10 +174,10 @@ define (['when', 'lodash'], function(when, _) {
 		return when(input.read.next()).then(
 		    function(nextElement) {
 			if(element.next === nextElement.next) {
-			    return {value: acc, next: when(element.next).then(aggregate(acc))}
+			    return cons(acc, when(element.next).then(aggregate(acc)));
 			}
 			else {
-			    return when(element.next).then(aggregate(acc))
+			    return when(element.next).then(aggregate(acc));
 			}
 		    })
 
@@ -281,6 +283,7 @@ define (['when', 'lodash'], function(when, _) {
 	iterate: iterate,
 	eitherStream: eitherStream,
 	EOF: EOF,
+	cons: cons,
 	next: function(val){return val.next},
 	value: function(val) {return val.value},
 	log: function(val) {console.log(val); return val}

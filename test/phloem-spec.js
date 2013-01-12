@@ -126,7 +126,26 @@ define(['phloem', 'when'], function(phloem, when) {
 		})
 	}
     })
-    
+
+    buster.testCase("cons", {
+	"- just value - ": {
+	    "a new value is resolved" : function() {
+		var cons = phloem.cons("head");
+		return when(cons.value)
+		    .then(function(value) {
+			assert.match(value, "head");
+		    });
+	    },
+	    "next is EOF" : function() {
+		var cons = phloem.cons("head");
+		return when(cons)
+		    .then(phloem.next)
+		    .then(function(value) {
+			assert.equals(value, phloem.EOF);
+		    });
+	    }
+	}
+    }),
     
     buster.testCase("stream", {
 	"- when push -": {
