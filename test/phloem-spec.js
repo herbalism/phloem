@@ -205,6 +205,23 @@ define(['phloem', 'when'], function(phloem, when) {
 	}
     });
 
+    buster.testCase("take", {
+	'take 1 from stream with 1 has one element': function() {
+	    var stream = phloem.stream();
+	    var next = stream.read.next();
+	    stream.push("first");
+	    stream.close();
+	    return when(phloem.take(next, 1)).then(
+		function(cons) {
+		    assert.equals(cons.value, "first");
+		    return cons.next;
+		}).then(function(cons) {
+		    assert.same(cons, phloem.EOF);
+		})
+	    
+	}
+    });
+
     buster.testCase("queue", {
 	"- when push -": {
 	    "a new value is resolved" : function() {
@@ -492,6 +509,4 @@ define(['phloem', 'when'], function(phloem, when) {
 	}
 
     });
-
 })
-

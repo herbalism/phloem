@@ -5,6 +5,8 @@ define (['when', 'lodash'], function(when, _) {
     EOF.next = when(EOF);
 
     var cons = function(head, tail) {return {value: head, next:when(tail || EOF)}};
+    var next = function(val){return val.next};
+    var value =  function(val) {return val.value};
 
     
     var either = function (val) {
@@ -193,7 +195,17 @@ define (['when', 'lodash'], function(when, _) {
 	}
     };
 
+    var hasMore = function(xs) {
+	return xs !== EOF;
+    }
 
+    var take = function(xs, count) {
+	return when(xs).then(
+	    function(val) {
+		return (hasMore(val) && count > 0) ? cons(value(val), take(next(val), count--)) : EOF;
+	    });
+    }
+    
     var iterate = function(next, callback) {
 	return when(next).then(
 	    function(val) {
@@ -271,12 +283,14 @@ define (['when', 'lodash'], function(when, _) {
 	}
     }
 
+
     return {
 	either: either,
 	not: not,
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
+	take: take,
 	events: events,
 	queue: queue,
 	filter: filter,
@@ -284,8 +298,8 @@ define (['when', 'lodash'], function(when, _) {
 	eitherStream: eitherStream,
 	EOF: EOF,
 	cons: cons,
-	next: function(val){return val.next},
-	value: function(val) {return val.value},
+	next: next,
+	value: value,
 	log: function(val) {console.log(val); return val}
     }
 })
