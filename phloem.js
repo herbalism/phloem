@@ -202,7 +202,7 @@ define (['when', 'lodash'], function(when, _) {
     var take = function(xs, count) {
 	return when(xs).then(
 	    function(val) {
-		return (hasMore(val) && count > 0) ? cons(value(val), take(next(val), count--)) : EOF;
+		return (hasMore(val) && count > 0) ? cons(value(val), take(next(val), count-1)) : EOF;
 	    });
     }
     

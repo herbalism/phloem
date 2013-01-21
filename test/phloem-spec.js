@@ -219,6 +219,25 @@ define(['phloem', 'when'], function(phloem, when) {
 		    assert.same(cons, phloem.EOF);
 		})
 	    
+	},
+	'take 2 from stream with 3 has one element': function() {
+	    var stream = phloem.stream();
+	    var next = stream.read.next();
+	    stream.push("first");
+	    stream.push("second");
+	    stream.push("third");
+	    stream.close();
+	    return when(phloem.take(next, 2)).then(
+		function(cons) {
+		    assert.equals(cons.value, "first");
+		    return cons.next;
+		}).then(function(cons) {
+		    assert.equals(cons.value, "second");
+		    return cons.next;
+		}).then(function(cons) {
+		    assert.same(cons, phloem.EOF);
+		});
+	    
 	}
     });
 
