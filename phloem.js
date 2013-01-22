@@ -2,13 +2,31 @@ define (['when', 'lodash'], function(when, _) {
     var EOF = {
 	type:"EOF"
     }
-    EOF.next = when(EOF);
 
-    var cons = function(head, tail) {return {value: head, next:when(tail || EOF)}};
-    var next = function(val){return val.next};
+    EOF.next = function(){return when(EOF)};
+
+    var cons = function(head, tail) {
+	var tail = tail;
+	if (typeof tail === 'function') {
+	    return {
+		value: head, 
+		next: function(){
+		    return when(tail());
+		}
+	    }
+	}
+
+	return {
+	    value:head, 
+	    next: function() {
+		return when(tail || EOF);
+	    }
+	}
+    };
+
+    var next = function(val){return val.next()};
     var value =  function(val) {return val.value};
 
-    
     var either = function (val) {
 	var value = val;
 	var leftVal = when.defer();
@@ -166,20 +184,20 @@ define (['when', 'lodash'], function(when, _) {
 	    return function(element) {
 		var acc = snapshot;
 
-		if(element.value.added) {
-		    acc = add(snapshot, element.value.added);
+		if(value(element).added) {
+		    acc = add(snapshot, value(element).added);
 		}
-		else if (element.value.dropped) {
-		    acc = drop(snapshot, element.value.dropped);
+		else if (value(element).dropped) {
+		    acc = drop(snapshot, value(element).dropped);
 		}
 		
 		return when(input.read.next()).then(
 		    function(nextElement) {
 			if(element.next === nextElement.next) {
-			    return cons(acc, when(element.next).then(aggregate(acc)));
+			    return cons(acc, when(next(element)).then(aggregate(acc)));
 			}
 			else {
-			    return when(element.next).then(aggregate(acc));
+			    return when(next(element)).then(aggregate(acc));
 			}
 		    })
 
@@ -206,11 +224,11 @@ define (['when', 'lodash'], function(when, _) {
 	    });
     }
     
-    var each = function(next, callback) {
-	return when(next).then(
+    var each = function(nxt, callback) {
+	return when(nxt).then(
 	    function(val) {
-		callback(val.value);
-		each(val.next, callback);
+		callback(value(val));
+		each(next(val), callback);
 	    }
 	)
     }

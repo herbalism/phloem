@@ -158,7 +158,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(function(value) {
 			assert.match(value,
 				     {value:"value", next:function(val){
-					 return when.isPromise(val)}})
+					 return when.isPromise(val())}})
 		    });
 	    },
 	    "more than one new value is resolved" : function() {
@@ -168,11 +168,11 @@ define(['phloem', 'when'], function(phloem, when) {
 		    .then(stream.push)
 		    .then(stream.next)
 		    .then(function(first) {
-			stream.push(first.value + " second")
-			return first.next})
+			stream.push(phloem.value(first) + " second")
+			return phloem.next(first)})
 		    .then(stream.next)
 		    .then(function(value) {
-			assert.equals(value.value, "value second")
+			assert.equals(phloem.value(value), "value second")
 		    });
 	    },
 	    "the last pushed value is read on next" : function() {
@@ -214,7 +214,7 @@ define(['phloem', 'when'], function(phloem, when) {
 	    return when(phloem.take(next, 1)).then(
 		function(cons) {
 		    assert.equals(cons.value, "first");
-		    return cons.next;
+		    return phloem.next(cons);
 		}).then(function(cons) {
 		    assert.same(cons, phloem.EOF);
 		})
@@ -230,10 +230,10 @@ define(['phloem', 'when'], function(phloem, when) {
 	    return when(phloem.take(next, 2)).then(
 		function(cons) {
 		    assert.equals(cons.value, "first");
-		    return cons.next;
+		    return phloem.next(cons);
 		}).then(function(cons) {
 		    assert.equals(cons.value, "second");
-		    return cons.next;
+		    return phloem.next(cons);
 		}).then(function(cons) {
 		    assert.same(cons, phloem.EOF);
 		});
@@ -244,13 +244,22 @@ define(['phloem', 'when'], function(phloem, when) {
     buster.testCase("iterate", {
 	"iterate constant fn makes infinite stream of result" : function() {
 	    var res = phloem.iterate(function(last){return 1;});
-	    return when(phloem.take(res, 2)).
+	    return when(phloem.take(res, 3)).
 		then(function (cons) {
 		    assert.equals(1, phloem.value(cons));
 		    return phloem.next(cons);
 		}).
-		then(phloem.value).
-		then(function(val){assert.equals(1, val)});
+		then(function (cons) {
+		    assert.equals(1, phloem.value(cons));
+		    return phloem.next(cons);
+		}).
+		then(function (cons) {
+		    assert.equals(1, phloem.value(cons));
+		    return phloem.next(cons);
+		}).
+		then(function (cons) {
+		    assert.same(phloem.EOF, cons);
+		});
 	}
     });
     
@@ -289,10 +298,10 @@ define(['phloem', 'when'], function(phloem, when) {
 		return when("new value")
 		    .then(queue.push)
 		    .then(queue.next)
-		    .then(function(val){queue.push("2. "+val.value)
-					return val.next})
-		    .then(function(val){queue.push("3. "+val.value[0])
-					return val.next})
+		    .then(function(val){queue.push("2. "+phloem.value(val))
+					return phloem.next(val)})
+		    .then(function(val){queue.push("3. "+phloem.value(val)[0])
+					return phloem.next(val)})
 		    .then(queue.next)
 		    .then(phloem.value)
 		    .then(function(value) {
@@ -466,7 +475,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		.then(function(val) {
 		    assert.match(val, {value: "left value"});
 		    right.push("switched to right");
-		    return val.next;
+		    return phloem.next(val);
 		})
 		.then(function(val) {
 		    assert.same(val, phloem.EOF);
