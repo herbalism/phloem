@@ -206,13 +206,22 @@ define (['when', 'lodash'], function(when, _) {
 	    });
     }
     
-    var iterate = function(next, callback) {
+    var each = function(next, callback) {
 	return when(next).then(
 	    function(val) {
 		callback(val.value);
-		iterate(val.next, callback);
+		each(val.next, callback);
 	    }
 	)
+    }
+
+    var iterate = function(iterator, initial) {
+	var defered = when.defer();
+
+	var current = iterator(initial);
+	var result = cons(current, defered.promise);
+	_.defer(function() {defered.resolve(cons(iterator(initial), EOF));});
+	return result;
     }
 
     var filter = function(next, condition) {
@@ -226,7 +235,7 @@ define (['when', 'lodash'], function(when, _) {
 	    }
 	}
 
-	iterate(next, function(val) {
+	each(next, function(val) {
 	    var match = doMatch(val)
 	    if(match) {
 		passed.push(match) 
@@ -274,8 +283,8 @@ define (['when', 'lodash'], function(when, _) {
 	    }
 	}
 
-	iterate(leftIn, pushTo(leftIn, out.left));
-	iterate(rightIn, pushTo(rightIn, out.right));
+	each(leftIn, pushTo(leftIn, out.left));
+	each(rightIn, pushTo(rightIn, out.right));
 	
 
 	return {
@@ -294,6 +303,7 @@ define (['when', 'lodash'], function(when, _) {
 	events: events,
 	queue: queue,
 	filter: filter,
+	each: each,
 	iterate: iterate,
 	eitherStream: eitherStream,
 	EOF: EOF,

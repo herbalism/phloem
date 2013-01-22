@@ -220,7 +220,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		})
 	    
 	},
-	'take 2 from stream with 3 has one element': function() {
+	'take 2 from stream with 3 has 2 elements': function() {
 	    var stream = phloem.stream();
 	    var next = stream.read.next();
 	    stream.push("first");
@@ -240,6 +240,20 @@ define(['phloem', 'when'], function(phloem, when) {
 	    
 	}
     });
+
+    buster.testCase("iterate", {
+	"iterate constant fn makes infinite stream of result" : function() {
+	    var res = phloem.iterate(function(last){return 1;});
+	    return when(phloem.take(res, 2)).
+		then(function (cons) {
+		    assert.equals(1, phloem.value(cons));
+		    return phloem.next(cons);
+		}).
+		then(phloem.value).
+		then(function(val){assert.equals(1, val)});
+	}
+    });
+    
 
     buster.testCase("queue", {
 	"- when push -": {
