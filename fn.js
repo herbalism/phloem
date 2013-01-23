@@ -26,18 +26,17 @@ define(['phloem'],
 	   }
 
 	   var map = function(stream, fn) {
-	       var iteration = function(current, rest) {
-		   return phloem.cons(
-		       fn(current), 
-		       function() {
-			   return when(rest).then(
-			       function(next) {
-			   	   return iteration(phloem.value(next), 
-						    phloem.next(next))
-			       });
-		       });
+	       var iteration = function(stream) {
+		   return when(stream).then(function(resolved) {
+		       if(resolved === phloem.EOF) return resolved;
+		       return phloem.cons(
+			   fn(phloem.value(resolved)), 
+			   function() {
+			       return iteration(phloem.next(resolved));
+			   });
+		   });
 	       }
-	       return iteration(phloem.value(stream), phloem.next(stream));
+	       return iteration(stream);
 	   }
 
 	   return {

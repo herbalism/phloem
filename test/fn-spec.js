@@ -103,6 +103,20 @@ define(['fn', 'phloem', 'when'],
 		       then(function (cons) {
 			   assert.same(phloem.EOF, cons);
 		       });
+	       },
+	       'map 1 from stream with 1 has one element': function() {
+		   var stream = phloem.stream();
+		   var next = stream.read.next();
+		   stream.push(1);
+		   stream.close();
+		   return when(fn.map(next, function(value){return value + "st"})).then(
+		       function(cons) {
+			   assert.equals(cons.value, "1st");
+			   return phloem.next(cons);
+		       }).then(function(cons) {
+			   assert.same(cons, phloem.EOF);
+		       })
+		   
 	       }
 
 	   });
