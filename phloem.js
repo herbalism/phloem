@@ -212,17 +212,6 @@ define (['when', 'lodash'], function(when, _) {
 	    drop: input.drop
 	}
     };
-
-    var hasMore = function(xs) {
-	return xs !== EOF;
-    }
-
-    var take = function(xs, count) {
-	return when(xs).then(
-	    function(val) {
-		return (hasMore(val) && count > 0) ? cons(value(val), take(next(val), count-1)) : EOF;
-	    });
-    }
     
     var each = function(nxt, callback) {
 	return when(nxt).then(
@@ -231,17 +220,6 @@ define (['when', 'lodash'], function(when, _) {
 		each(next(val), callback);
 	    }
 	)
-    }
-
-    var iterate = function(iterator, initial) {
-
-	var iteration = function(current) {
-	    return cons(current, 
-			function() {
-			    return when(iteration(current));
-			});
-	}
-	return iteration(iterator(initial));
     }
 
     var filter = function(next, condition) {
@@ -319,12 +297,10 @@ define (['when', 'lodash'], function(when, _) {
 	optional: optional,
 	whenever: whenever,
 	stream: stream,
-	take: take,
 	events: events,
 	queue: queue,
 	filter: filter,
 	each: each,
-	iterate: iterate,
 	eitherStream: eitherStream,
 	EOF: EOF,
 	cons: cons,
