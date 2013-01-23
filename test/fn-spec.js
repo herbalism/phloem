@@ -82,4 +82,28 @@ define(['fn', 'phloem', 'when'],
 
 	   });
 
+	   buster.testCase("map", {
+	       "map returns a new stream with the result of fn applied to values in input" : function() {
+		   var initial = fn.iterate(function(last){return last+1;}, 0);
+		   var mapped = fn.map(initial, function(val) {return val * val});
+
+		   return when(fn.take(mapped, 3)).
+		       then(function (cons) {
+			   assert.equals(1, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.equals(4, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.equals(9, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.same(phloem.EOF, cons);
+		       });
+	       }
+
+	   });
 });

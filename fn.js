@@ -1,15 +1,6 @@
 define(['phloem'],
        function(phloem) {
-	   var iterate = function(iterator, initial) {
 
-	       var iteration = function(current) {
-		   return phloem.cons(current, 
-			       function() {
-				   return when(iteration(iterator(current)));
-			       });
-	       }
-	       return iteration(iterator(initial));
-	   }
 
 	   var hasMore = function(xs) {
 	       return xs !== phloem.EOF;
@@ -24,8 +15,34 @@ define(['phloem'],
 		   });
 	   }
 
+	   var iterate = function(iterator, initial) {
+	       var iteration = function(current) {
+		   return phloem.cons(current, 
+			       function() {
+				   return when(iteration(iterator(current)));
+			       });
+	       }
+	       return iteration(iterator(initial));
+	   }
+
+	   var map = function(stream, fn) {
+	       var iteration = function(current, rest) {
+		   return phloem.cons(
+		       fn(current), 
+		       function() {
+			   return when(rest).then(
+			       function(next) {
+			   	   return iteration(phloem.value(next), 
+						    phloem.next(next))
+			       });
+		       });
+	       }
+	       return iteration(phloem.value(stream), phloem.next(stream));
+	   }
+
 	   return {
 	       take: take,
-	       iterate: iterate
+	       iterate: iterate,
+	       map: map
 	   }
 });
