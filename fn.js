@@ -5,7 +5,7 @@ define(['phloem'],
 	       var iteration = function(current) {
 		   return phloem.cons(current, 
 			       function() {
-				   return when(iteration(current));
+				   return when(iteration(iterator(current)));
 			       });
 	       }
 	       return iteration(iterator(initial));

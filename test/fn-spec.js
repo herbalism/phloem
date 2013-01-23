@@ -58,7 +58,28 @@ define(['fn', 'phloem', 'when'],
 		       then(function (cons) {
 			   assert.same(phloem.EOF, cons);
 		       });
+	       },
+	       "iterate inc fn makes infinite stream of result" : function() {
+		   var res = fn.iterate(function(last){
+		       return last+1;}, 0);
+		   return when(fn.take(res, 3)).
+		       then(function (cons) {
+			   assert.equals(1, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.equals(2, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.equals(3, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
+			   assert.same(phloem.EOF, cons);
+		       });
 	       }
+
 	   });
 
 });
