@@ -2,7 +2,7 @@ var config = module.exports;
 
 config["browser tests"] = {
     environment: "browser",
-    sources: ["phloem.js",
+    sources: ["*.js",
 	      "modules/when/*.js",
 	      "modules/lodash/lodash.js",
 	      "modules/curl/src/curl/plugin/**/*.js"],
