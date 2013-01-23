@@ -234,12 +234,14 @@ define (['when', 'lodash'], function(when, _) {
     }
 
     var iterate = function(iterator, initial) {
-	var defered = when.defer();
 
-	var current = iterator(initial);
-	var result = cons(current, defered.promise);
-	_.defer(function() {defered.resolve(cons(iterator(initial), EOF));});
-	return result;
+	var iteration = function(current) {
+	    return cons(current, 
+			function() {
+			    return when(iteration(current));
+			});
+	}
+	return iteration(iterator(initial));
     }
 
     var filter = function(next, condition) {
