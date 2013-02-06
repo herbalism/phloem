@@ -82,6 +82,17 @@ define(['fn', 'phloem', 'when'],
 
 	   });
 
+	   buster.testCase("drop", {
+	       "drop one skips first item": function() {
+	       	   var res = fn.iterate(function(last){
+		       return last+1;}, 0);
+		   return when(fn.take(fn.drop(res, 1), 1)).
+		       then(function (cons) {
+			   assert.equals(phloem.value(cons), 2);
+		       });
+	       }
+	   });
+
 	   buster.testCase("map", {
 	       "map returns a new stream with the result of fn applied to values in input" : function() {
 		   var initial = fn.iterate(function(last){return last+1;}, 0);
@@ -118,6 +129,6 @@ define(['fn', 'phloem', 'when'],
 		       })
 		   
 	       }
-
 	   });
+
 });

@@ -15,6 +15,17 @@ define(['phloem'],
 		   });
 	   }
 
+	   var drop = function(xs, count) {
+	       return when(xs).then(
+		   function(val) {
+		       if (hasMore(val)) {
+			   return count > 0 ? 
+			       drop(phloem.next(val), count -1) : val;
+		       }
+		       return phloem.EOF;
+		   });
+	   }
+
 	   var iterate = function(iterator, initial) {
 	       var iteration = function(current) {
 		   return phloem.cons(current, 
@@ -40,6 +51,7 @@ define(['phloem'],
 	   }
 
 	   return {
+	       drop: drop,
 	       take: take,
 	       iterate: iterate,
 	       map: map
