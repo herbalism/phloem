@@ -82,6 +82,37 @@ define(['fn', 'phloem', 'when'],
 
 	   });
 
+	   buster.testCase("drop", {
+	       "drop one skips first item": function() {
+	       	   var res = fn.iterate(function(last){
+		       return last+1;}, 0);
+		   return when(fn.take(fn.drop(res, 1), 1)).
+		       then(function (cons) {
+			   assert.equals(phloem.value(cons), 2);
+		       });
+	       },
+
+	       "drop 3 skips first 3 items": function() {
+	       	   var res = fn.iterate(function(last){
+		       return last+1;}, 0);
+		   return when(fn.take(fn.drop(res, 3), 1)).
+		       then(function (cons) {
+			   assert.equals(phloem.value(cons), 4);
+		       });
+	       },
+
+       	       "drop 3 skips when only 1 returns EOF": function() {
+	       	   var res = fn.iterate(function(last){
+		       return last+1;}, 0);
+		   return when(fn.drop(fn.take(res), 3)).
+		       then(function (cons) {
+			   assert.equals(cons, phloem.EOF);
+		       });
+	       }
+
+
+	   });
+
 	   buster.testCase("map", {
 	       "map returns a new stream with the result of fn applied to values in input" : function() {
 		   var initial = fn.iterate(function(last){return last+1;}, 0);
@@ -118,6 +149,6 @@ define(['fn', 'phloem', 'when'],
 		       })
 		   
 	       }
-
 	   });
+
 });
