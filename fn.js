@@ -1,5 +1,5 @@
-define(['phloem'],
-       function(phloem) {
+define(['phloem', 'when'],
+       function(phloem, when) {
 
 
 	   var hasMore = function(xs) {
