@@ -1,31 +1,9 @@
 define (['when', 'lodash', 'cons', 'cons/fn'], function(when, _, consjs, fn) {
-    var EOF = {
-	type:"EOF"
-    }
+    var EOF = consjs.EOF;
+    var cons = consjs.cons;
 
-    EOF.next = function(){return when(EOF)};
-
-    var cons = function(head, tail) {
-	var tail = tail;
-	if (typeof tail === 'function') {
-	    return {
-		value: head, 
-		next: function(){
-		    return when(tail());
-		}
-	    }
-	}
-
-	return {
-	    value:head, 
-	    next: function() {
-		return when(tail || EOF);
-	    }
-	}
-    };
-
-    var next = function(val){return val.next()};
-    var value =  function(val) {return val.value};
+    var next = consjs.next;
+    var value =  consjs.value;
 
     var either = function (val) {
 	var value = val;
@@ -213,14 +191,7 @@ define (['when', 'lodash', 'cons', 'cons/fn'], function(when, _, consjs, fn) {
 	}
     };
     
-    var each = function(nxt, callback) {
-	return when(nxt).then(
-	    function(val) {
-		callback(value(val));
-		each(next(val), callback);
-	    }
-	)
-    }
+    var each = fn.each;
 
     var filter = function(next, condition) {
 	var passed = stream();
