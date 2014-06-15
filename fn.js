@@ -1,25 +1,5 @@
 define(['phloem', 'when', 'cons/fn'],
        function(phloem, when, fn) {
-
-
-	   var hasMore = function(xs) {
-	       return xs !== phloem.EOF;
-	   }
-
-	   var take = fn.take;
-
-	   var drop = fn.drop;
-
-	   var iterate = function(iterator, initial) {
-	       var iteration = function(current) {
-		   return phloem.cons(current, 
-			       function() {
-				   return when(iteration(iterator(current)));
-			       });
-	       }
-	       return iteration(iterator(initial));
-	   }
-
 	   var map = function(stream, fn) {
 	       var iteration = function(stream) {
 		   return when(stream).then(function(resolved) {
@@ -35,9 +15,9 @@ define(['phloem', 'when', 'cons/fn'],
 	   }
 
 	   return {
-	       drop: drop,
-	       take: take,
-	       iterate: iterate,
+	       drop: fn.drop,
+	       take: fn.take,
+	       iterate: fn.iterate,
 	       map: map
 	   }
 });

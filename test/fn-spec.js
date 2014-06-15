@@ -11,7 +11,6 @@ define(['fn', 'phloem', 'when'],
 		   stream.close();
 		   return when(fn.take(next, 1).next()).then(
 		       function(cons) {
-                           console.log("cons", cons);
 			   assert.equals(cons.value, "first");
 			   return phloem.next(cons);
 		       }).then(function(cons) {
@@ -65,15 +64,15 @@ define(['fn', 'phloem', 'when'],
 		       return last+1;}, 0);
 		   return when(fn.take(res, 3).next()).
 		       then(function (cons) {
+			   assert.equals(0, phloem.value(cons));
+			   return phloem.next(cons);
+		       }).
+		       then(function (cons) {
 			   assert.equals(1, phloem.value(cons));
 			   return phloem.next(cons);
 		       }).
 		       then(function (cons) {
 			   assert.equals(2, phloem.value(cons));
-			   return phloem.next(cons);
-		       }).
-		       then(function (cons) {
-			   assert.equals(3, phloem.value(cons));
 			   return phloem.next(cons);
 		       }).
 		       then(function (cons) {
@@ -89,7 +88,7 @@ define(['fn', 'phloem', 'when'],
 		       return last+1;}, 0);
 		   return when(fn.take(fn.drop(res, 1), 1).next()).
 		       then(function (cons) {
-			   assert.equals(phloem.value(cons), 2);
+			   assert.equals(phloem.value(cons), 1);
 		       });
 	       },
 
@@ -98,7 +97,7 @@ define(['fn', 'phloem', 'when'],
 		       return last+1;}, 0);
 		   return when(fn.take(fn.drop(res, 3), 1).next()).
 		       then(function (cons) {
-			   assert.equals(phloem.value(cons), 4);
+			   assert.equals(phloem.value(cons), 3);
 		       });
 	       },
 
@@ -116,8 +115,8 @@ define(['fn', 'phloem', 'when'],
 
 	   buster.testCase("map", {
 	       "map returns a new stream with the result of fn applied to values in input" : function() {
-		   var initial = fn.iterate(function(last){return last+1;}, 0);
-		   var mapped = fn.map(initial, function(val) {return val * val});
+		   var initial = fn.iterate(function(last){return last+1;}, 1);
+		   var mapped = fn.map(initial.next(), function(val) {return val * val});
 
 		   return when(fn.take(mapped, 3).next()).
 		       then(function (cons) {
