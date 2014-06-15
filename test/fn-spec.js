@@ -116,7 +116,7 @@ define(['fn', 'phloem', 'when'],
 	   buster.testCase("map", {
 	       "map returns a new stream with the result of fn applied to values in input" : function() {
 		   var initial = fn.iterate(function(last){return last+1;}, 1);
-		   var mapped = fn.map(initial.next(), function(val) {return val * val});
+		   var mapped = fn.map(initial, function(val) {return val * val});
 
 		   return when(fn.take(mapped, 3).next()).
 		       then(function (cons) {
@@ -136,11 +136,8 @@ define(['fn', 'phloem', 'when'],
 		       });
 	       },
 	       'map 1 from stream with 1 has one element': function() {
-		   var stream = phloem.stream();
-		   var next = stream.read.next();
-		   stream.push(1);
-		   stream.close();
-		   return when(fn.map(next, function(value){return value + "st"})).then(
+		   var stream = fn.forArray([1]);
+		   return when(fn.map(stream, function(value){return value + "st"}).next()).then(
 		       function(cons) {
 			   assert.equals(cons.value, "1st");
 			   return phloem.next(cons);
