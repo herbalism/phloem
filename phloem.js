@@ -193,33 +193,7 @@ define (['when', 'lodash', 'cons', 'cons/fn'], function(when, _, consjs, fn) {
     
     var each = fn.each;
 
-    var filter = function(next, condition) {
-	var passed = stream();
-	var rejected = stream();
-	var doMatch = condition;
-	if((typeof condition) != "function") {
-	    doMatch = function(val) {
-		var match = condition.exec(val)
-		return match && (match.length > 1 ? match.slice(1) : match[0])
-	    }
-	}
-
-	each(next, function(val) {
-	    var match = doMatch(val)
-	    if(match) {
-		passed.push(match) 
-	    }
-	    else {
-		rejected.push(val);
-	    }
-	});
-	return {
-	    read: {
-		next: passed.read.next,
-		unmatched: rejected.read.next
-	    }
-	};
-    }
+    var filter = fn.filter;
 
     var events = function(output) {
 	var out = output || stream();

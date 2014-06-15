@@ -306,7 +306,7 @@ define(['phloem', 'when'], function(phloem, when) {
 	    var stream = phloem.stream();
 	    var filtered = phloem.filter(stream.read.next(), /a+/);
 
-	    var promise = when(filtered.read.next())
+	    var promise = when(filtered.next())
 	    stream.push("aaaa");
 
 	    return promise.then(function(val) {
@@ -318,7 +318,7 @@ define(['phloem', 'when'], function(phloem, when) {
 	    var stream = phloem.stream();
 	    var filtered = phloem.filter(stream.read.next(), /a+/);
 
-	    var promise = when(filtered.read.next())
+	    var promise = when(filtered.next())
 	    stream.push("bbbb");
 	    stream.push("aaaa");
 
@@ -326,45 +326,18 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(val, {value: "aaaa"});
 	    })
 	},
-	"lets groupmatches through as arrays" : function() {
-	    var stream = phloem.stream();
-	    var filtered = phloem.filter(stream.read.next(), /(a+)(b+)/);
-
-	    var promise = when(filtered.read.next())
-	    stream.push("aaaabb");
-
-	    return promise.then(function(val) {
-		assert.match(val, {value: ["aaaa", "bb"]});
-	    });
-
-	},
 	"function that returns falsey does not match" : function() {
 	    var stream = phloem.stream();
 	    var filtered = phloem.filter(stream.read.next(), function(val){if(val === "abc"){return "hepp"}});
 
-	    var promise = when(filtered.read.next())
+	    var promise = when(filtered.next())
 	    stream.push("abcd");
 	    stream.push("abc");
 
 	    return promise.then(function(val) {
-		assert.match(val, {value: "hepp"});
+		assert.match(val, {value: "abc"});
 	    });
 
-	},
-	"unmatched item can be read" : function() {
-	    var stream = phloem.stream();
-	    var filter = phloem.filter(stream.read.next(), /abc/);
-
-	    var matched = filter.read.next();
-	    var unmatched = filter.read.unmatched();
-	    var promise = when.all([matched, unmatched]);
-
-	    stream.push("abc");
-	    stream.push("ddd");
-
-	    return promise.then(function(vals) {
-		assert.match(vals, [{value:'abc'}, {value:'ddd'}]);
-	    });
 	}
     }),
 
