@@ -1,30 +1,14 @@
-define(['phloem', 'when'],
-       function(phloem, when) {
+define(['phloem', 'when', 'cons/fn'],
+       function(phloem, when, fn) {
 
 
 	   var hasMore = function(xs) {
 	       return xs !== phloem.EOF;
 	   }
 
-	   var take = function(xs, count) {
-	       return when(xs).then(
-		   function(val) {
-		       return (hasMore(val) && count > 0) ? 
-			   phloem.cons(phloem.value(val), take(phloem.next(val), count-1)) : 
-			   phloem.EOF;
-		   });
-	   }
+	   var take = fn.take;
 
-	   var drop = function(xs, count) {
-	       return when(xs).then(
-		   function(val) {
-		       if (hasMore(val)) {
-			   return count > 0 ? 
-			       drop(phloem.next(val), count -1) : val;
-		       }
-		       return phloem.EOF;
-		   });
-	   }
+	   var drop = fn.drop;
 
 	   var iterate = function(iterator, initial) {
 	       var iteration = function(current) {

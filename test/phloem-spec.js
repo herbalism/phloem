@@ -326,7 +326,7 @@ define(['phloem', 'when'], function(phloem, when) {
 		assert.match(val, {value: "aaaa"});
 	    })
 	},
-	"function that returns falsey does not match" : function() {
+        "function that returns falsey does not match" : function() {
 	    var stream = phloem.stream();
 	    var filtered = phloem.filter(stream.read.next(), function(val){if(val === "abc"){return "hepp"}});
 

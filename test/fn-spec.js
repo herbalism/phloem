@@ -9,8 +9,9 @@ define(['fn', 'phloem', 'when'],
 		   var next = stream.read.next();
 		   stream.push("first");
 		   stream.close();
-		   return when(fn.take(next, 1)).then(
+		   return when(fn.take(next, 1).next()).then(
 		       function(cons) {
+                           console.log("cons", cons);
 			   assert.equals(cons.value, "first");
 			   return phloem.next(cons);
 		       }).then(function(cons) {
@@ -25,7 +26,7 @@ define(['fn', 'phloem', 'when'],
 		   stream.push("second");
 		   stream.push("third");
 		   stream.close();
-		   return when(fn.take(next, 2)).then(
+		   return when(fn.take(next, 2).next()).then(
 		       function(cons) {
 			   assert.equals(cons.value, "first");
 			   return phloem.next(cons);
@@ -42,7 +43,7 @@ define(['fn', 'phloem', 'when'],
 	   buster.testCase("iterate", {
 	       "iterate constant fn makes infinite stream of result" : function() {
 		   var res = fn.iterate(function(last){return 1;});
-		   return when(fn.take(res, 3)).
+		   return when(fn.take(res, 3).next()).
 		       then(function (cons) {
 			   assert.equals(1, phloem.value(cons));
 			   return phloem.next(cons);
@@ -62,7 +63,7 @@ define(['fn', 'phloem', 'when'],
 	       "iterate inc fn makes infinite stream of result" : function() {
 		   var res = fn.iterate(function(last){
 		       return last+1;}, 0);
-		   return when(fn.take(res, 3)).
+		   return when(fn.take(res, 3).next()).
 		       then(function (cons) {
 			   assert.equals(1, phloem.value(cons));
 			   return phloem.next(cons);
@@ -86,7 +87,7 @@ define(['fn', 'phloem', 'when'],
 	       "drop one skips first item": function() {
 	       	   var res = fn.iterate(function(last){
 		       return last+1;}, 0);
-		   return when(fn.take(fn.drop(res, 1), 1)).
+		   return when(fn.take(fn.drop(res, 1), 1).next()).
 		       then(function (cons) {
 			   assert.equals(phloem.value(cons), 2);
 		       });
@@ -95,7 +96,7 @@ define(['fn', 'phloem', 'when'],
 	       "drop 3 skips first 3 items": function() {
 	       	   var res = fn.iterate(function(last){
 		       return last+1;}, 0);
-		   return when(fn.take(fn.drop(res, 3), 1)).
+		   return when(fn.take(fn.drop(res, 3), 1).next()).
 		       then(function (cons) {
 			   assert.equals(phloem.value(cons), 4);
 		       });
@@ -104,7 +105,7 @@ define(['fn', 'phloem', 'when'],
        	       "drop 3 skips when only 1 returns EOF": function() {
 	       	   var res = fn.iterate(function(last){
 		       return last+1;}, 0);
-		   return when(fn.drop(fn.take(res), 3)).
+		   return when(fn.drop(fn.take(res, 1), 3).next()).
 		       then(function (cons) {
 			   assert.equals(cons, phloem.EOF);
 		       });
@@ -118,7 +119,7 @@ define(['fn', 'phloem', 'when'],
 		   var initial = fn.iterate(function(last){return last+1;}, 0);
 		   var mapped = fn.map(initial, function(val) {return val * val});
 
-		   return when(fn.take(mapped, 3)).
+		   return when(fn.take(mapped, 3).next()).
 		       then(function (cons) {
 			   assert.equals(1, phloem.value(cons));
 			   return phloem.next(cons);
