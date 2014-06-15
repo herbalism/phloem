@@ -1,4 +1,4 @@
-define (['when', 'lodash'], function(when, _) {
+define (['when', 'lodash', 'cons', 'cons/fn'], function(when, _, consjs, fn) {
     var EOF = {
 	type:"EOF"
     }

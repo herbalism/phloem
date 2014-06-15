@@ -14,8 +14,12 @@
     "url": "git://github.com/herbalism/phloem.git"
   },
   "devDependencies": {
-  "buster-amd":"0.3.0"
-  }, 
+    "buster": "0.7",
+    "buster-amd": "0.3.0"
+  },
+  "dependencies": {
+    "consjs": "0.0.1"
+  },
   "author": "Joakim Ohlrogge",
   "license": "BSD"
 }
