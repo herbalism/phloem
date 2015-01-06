@@ -1,25 +1,27 @@
 {
-  "name": "phloem",
-  "version": "0.0.0",
-  "description": "promise based data structures",
-  "main": "phloem.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "buster test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/herbalism/phloem.git"
-  },
-  "devDependencies": {
-    "buster": "0.7",
-    "buster-amd": "0.3.0"
-  },
-  "dependencies": {
-    "consjs": "0.0.1"
-  },
-  "author": "Joakim Ohlrogge",
-  "license": "BSD"
+    "name": "herb-phloem",
+    "version": "0.0.0",
+    "description": "consjs integrations",
+    "main": "phloem.js",
+    "directories": {
+        "test": "test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/herbalism/phloem.git"
+    },
+    "dependencies": {
+        "consjs": "0.0.*",
+        "herb-foliage": "0.0.*",
+        "lodash": "^2.4.1",
+        "q": "^1.1.1"
+    },
+    "devDependencies": {
+        "tattler": "0.0.4"
+    },
+    "scripts": {
+        "test": "node test/run.js"
+    },
+    "author": "Joakim Ohlrogge",
+    "license": "BSD"
 }
