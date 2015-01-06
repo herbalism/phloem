@@ -4,3 +4,6 @@
 [submodule "modules/when"]
 	path = modules/when
 	url = git://github.com/cujojs/when.git
+[submodule "modules/lodash"]
+	path = modules/lodash
+	url = git://github.com/bestiejs/lodash.git
