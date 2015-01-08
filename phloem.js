@@ -14,9 +14,9 @@
                 var update = dom.dynamic(elementFactory, initial);
                 fn.each(stream,
                         function(value){
-                            update.__next(value);
+                            update.next(value);
                         });
-                return update;
+                return update.element;
             }
         }
 
@@ -31,7 +31,7 @@
     if (typeof define !== 'undefined') {
         define(['consjs', 
                 'consjs/fn',
-                'foliage',
+                'herb-foliage',
                 'q'], phloem);
     } else if (typeof module !== 'undefined' && module.exports) {
         module.exports = phloem(
