@@ -1,6 +1,6 @@
 {
     "name": "herb-phloem",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "consjs integrations",
     "main": "phloem.js",
     "directories": {
@@ -12,12 +12,13 @@
     },
     "dependencies": {
         "consjs": "0.0.*",
-        "herb-foliage": "0.0.*",
+        "herb-foliage": ">=0.0.2",
         "lodash": "^2.4.1",
         "q": "^1.1.1"
     },
     "devDependencies": {
-        "tattler": "0.0.4"
+        "tattler": "0.0.4",
+        "curl-amd": "0.8"
     },
     "scripts": {
         "test": "node test/run.js"
