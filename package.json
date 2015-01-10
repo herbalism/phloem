@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "consjs": "0.0.*",
-        "herb-foliage": ">=0.0.2",
+        "herb-foliage": ">=0.0.3",
         "lodash": "^2.4.1",
         "q": "^1.1.1"
     },
