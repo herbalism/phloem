@@ -1,6 +1,6 @@
 {
     "name": "herb-phloem",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "consjs integrations",
     "main": "phloem.js",
     "directories": {
