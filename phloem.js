@@ -1,11 +1,11 @@
 (function(){
-    function phloem(phloem, fn, f, when) {
+    function phloem(consjs, fn, f, when) {
         function doNext(iter, ui, parent, undo) {
 	    return when(iter).then(function(model) {
-	        var last = ui(phloem.value(model))(parent);
+	        var last = ui(consjs.value(model))(parent);
 	        undo.undo = last.undo;
-	        when(phloem.next(model)).then(last.undo);
-	        return doNext(phloem.next(model), ui, parent, undo);
+	        when(consjs.next(model)).then(last.undo);
+	        return doNext(consjs.next(model), ui, parent, undo);
 	    });
         }
 
@@ -20,11 +20,36 @@
             }
         }
 
+        function scope(s) {
+            return s();
+        }
+        
         var res = {
-            scope: function(s) {
-                return s();
-            },
-            bind: bind
+            scope: scope,
+            bind: bind,
+            collectData:function(fn, initial){
+                return scope(function() {
+                    var stateChanges = consjs.stream();
+                    var current = initial;
+                    var context = {
+                        states: stateChanges.read,
+                        attach: function(name) {
+                            return {
+                                onChange: function(event) {
+                                    current[name]=event.target.value;
+                                    stateChanges.push(current);
+                                }
+                            }
+                        }
+                    };
+                    return bind(
+                        stateChanges.read,
+                        function(newState){
+                            current = newState;
+                            return fn(context, newState);
+                        },
+                        initial);
+                })}
         }
         return res;
     }
