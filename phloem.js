@@ -40,7 +40,11 @@
                                     stateChanges.push(current);
                                 }
                             }
-                        }
+                        },
+			push: function(name, value) {
+			    current[name]=value;
+			    stateChanges.push(current);
+			}
                     };
                     return bind(
                         stateChanges.read,

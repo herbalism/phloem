@@ -102,7 +102,41 @@
                         assert.equals(inputAfterTrigger.attr.class, 'unbobish'),
                         assert.equals(inputAfterTrigger.attr.value, 'Not Bob'))
                 });
-            })
+            }),
+	    "can push value to update state" : withContext(function(ctx){
+                var peekContext = {};
+                var result = f.div(
+                    p.collectData(
+                        function(context, current) {
+                            peekContext = context;
+                            return f.div(
+				f.button(
+                                    '#act',
+				    on('Click', function() {
+					context.push('name', 'Alice');
+				    })
+				),
+				f.input(
+				    '#name',
+				    {
+					value:current.name,
+					classes:(current.name === 'Bob' ? 'bobish' : 'unbobish')
+				    }
+				));
+                            },
+                            {name: 'Bob'})
+                )(ctx);
+
+                var input = ctx.find(result, "div div #act");
+                ctx.trigger(input, 'click', {});
+                //wait for update
+                return  q(peekContext.states.next()).then(function(){
+                    var inputAfterTrigger = ctx.find(result, "div div #name");
+                    return q.all(
+                        assert.equals(inputAfterTrigger.attr.class, 'unbobish'),
+                        assert.equals(inputAfterTrigger.attr.value, 'Not Bob'))
+                });
+	    })
         });
         
         return [scope, bind, collectData];
